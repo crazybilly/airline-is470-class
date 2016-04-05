@@ -108,14 +108,19 @@ quantile(bearabledata$DepDelayMinutes, na.rm = T)
 
 # general plotting --------------------------------------------------------
 
-foo  <- rnorm(100)
-foo2  <- rnorm(100)
-bar  <- rnorm(6)
-boxplot(foo,bar)
-
+# histogram of delay groups
 hist(bearabledata$ArrivalDelayGroups)
 
+# boxplot of delay by carrier
+boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier)
+boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier, ylim = c(0, 40) )
+
+# delay over time 
 plot(bearabledata$FlightDate, bearabledata$ArrDelayMinutes)
+
+
+
+
 
 
 

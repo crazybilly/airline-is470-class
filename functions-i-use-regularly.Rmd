@@ -209,9 +209,9 @@ foo %>% summarize( avg.mpg = mean(mpg) , n.in.group = n() )
 
 
 ### SQL style verbs
-`left_join()`
-`inner_join()`
-`right_join()`
-`full_join()`
-`semi_join()`
-`anti_join()`
+- `left_join()`
+- `inner_join()`
+- `right_join()`
+- `full_join()`
+- `semi_join()`
+- `anti_join()`
