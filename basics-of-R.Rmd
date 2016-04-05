@@ -1,0 +1,45 @@
+---
+title: "Intro to R"
+author: "Jake Tolbert"
+date: "April 5, 2016"
+output: html_document
+---
+
+# Basics of R
+
+1. Interactive Console
+
+    - look at the basic console
+
+```{r}
+cyl6 <- mtcars[mtcars$cyl==6,]
+cyl4 <- mtcars[mtcars$cyl==4,]
+
+# is there a significant difference in mpg between 4 and 6 cylinder vehicles?
+t.test(cyl6$mpg, cyl4$mpg)
+```
+
+    - history (just like a terminal)
+    - assign and use variables (we call them objects)
+    - use RStudio as an IDE instead
+    
+
+2. Running Scripts
+
+    - save your work
+    - redo analysis when your source data changes
+    - avoid overwriting your objects
+    
+
+3. There's No Shame in Using Libraries
+
+    - lots of tasks are a pain in base R, munging, dates, etc
+    - use libraries:
+        - dplyr
+        - lubridate
+        - tidyr
+        - ggplot2
+        - magrittr
+        
+4. Jump Into the Analysis
+    

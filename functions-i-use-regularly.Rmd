@@ -1,0 +1,217 @@
+---
+title: "R Functions I Use"
+author: "Jake Tolbert"
+date: "April 5, 2016"
+output: html_document
+---
+
+# R Functions I Use Regularly
+
+## Base Functions 
+
+`<-`  assigns values
+
+`$`  - get a column out of a data frame, returns a vector
+```{r}
+# the cylinders vector of mtcars
+mtcars$cyl
+```
+
+`[ ]` – get a subsection of a data frame or list
+```{r}
+# gets rows 2-6, columns 1:3
+mtcars[2:6, 1:3] 
+
+# returns the cyl column as a data frame
+mtcars["cyl"] 
+```
+
+`[[ ]]` – get a vector that was part of a data frame or list
+```{r}
+# returns the cyl column as a vector
+mtcars[["cyl"]] 
+```
+	
+### Vector functions
+`c()` - create a vector
+```{r}
+onethroughten  <- c(1:10)
+onetwothree    <- c(1,2,3)
+guys           <- c('Jake','RJ','Ed')
+```
+
+`summary()` - see a summary of data
+```{r}
+# a 5 number summary of a single vector
+summary(onethroughten)
+
+# 5 number summaries of each column of a data frame
+summary(mtcars)
+```
+
+`grepl()` - return a logical vector if a vector matches a regular expression
+```{r}
+grepl( "setosa", iris$Species)
+```
+
+`max()`, `min()`, `mean()`, `median()`, `std()` – all do what you’d expect
+
+`ifelse()` – Excel-style if function
+```{r}
+ifelse(mtcars$mpg > 30, "good mpg", "makes Green Peace sad")
+```
+
+### Plotting functions
+
+```{r}
+# plot two vectors
+plot(mtcars$cyl, mtcars$mpg)
+
+# standard boxplots
+boxplot(mtcars$mpg)
+boxplot(mtcars$mpg ~ mtcars$cyl)
+
+# histograms
+hist(mtcars$mpg) 
+```
+
+### Data frame functions
+`data.frame()` - create a data frame from a list of vectors
+```{r}
+mydf  <- data.frame( 
+    foo = 1:3
+  , bar = c('x','y','z')
+  , meh = guys
+  , stringsAsFactors = F
+  )
+```
+
+`str()` - see the names, classes and an excerpt of each column of a data frame
+
+`names()` - get the column names for a data frame
+
+`sapply()` - apply a function to each item in a list and try to return a vector
+```{r}
+# see the max of each column
+sapply(mtcars, max)
+
+# write your own function and return that function's value for each column
+sapply(mtcars, function(x) {
+  what = max(x);
+  the = min(x);
+  meh = what - the
+  # note the lack of a return function
+})
+```
+
+`lapply()` - apply a function to each item in a list and return a list
+```{r}
+
+# summarize each column
+lapply(mtcars, summary)
+
+# write a fancy function and return the value as a list
+lapply(mtcars, function(x) {
+        x > 10
+    })
+```
+
+`unlist()` - concatenate a list into a vector
+
+`View()`  -  see a full data frame in the RStudio viewer
+```{r}
+View(mtcars)
+```
+    
+
+### System functions
+`library(dplyr)` - load an installed package
+
+`install.packages('dplyr')` - install a package
+
+`if()` - flow control 
+	
+`exists()` - check if an object exists
+```{r}
+# check to make sure foo exists before you bother reading it in
+if( !exists("foo") ) { read.csv("foo.csv") }
+```
+
+`rm()` - remove an object
+```{r}
+# delete foo
+rm(foo)
+
+# clear out the working environment
+rm(list = ls() )
+```
+
+`read.csv()` - read a csv file from disk into a data frame
+```{r}
+# read in foo.csv
+foo  <- read.csv("foo.csv", stringsAsFactors = F)
+
+# read a tab separated spreadsheet on the clipboard
+bar  <- read.csv("clipboard", sep="\t", stringsAsFactors = F) 
+```
+	
+
+`write.csv()` - write a data frame to disk
+```{r}
+# write the object foo as foo.csv 
+write.csv(foo, file= "foo.csv", row.names = F)
+
+# write the object bar to the clipboard to paste into Excel 
+write.csv(bar, file= "clipboard", sep = "\t", row.names = F)
+```
+
+## Dplyr verbs
+
+see [(https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)]
+
+### Base verbs
+`filter()` - filter a data frame based on criteria
+```{r}
+# load dplry
+library(dplyr)
+# make mtcars print nicely
+mtcars  <- tbl_df(mtcars)
+
+
+mtcars %>% filter(cyl >4)
+```
+
+`mutate()` - add new columns to a data frame
+```{r}
+mtcars %>% mutate( hasbigengine = cyl >= 4)
+```
+
+`select()` - choose and reorder columns in a data frame
+```{r}
+mtcars %>% select( cyl, drat)
+```
+
+`arrange()` - sort a data frame based on criteria in the data frame
+```{r}
+mtcars %>% arrange( cyl)
+```
+
+`group_by()` - set a column to aggregate on 
+```{r}
+foo  <- mtcars %>% group_by( cyl )
+```
+
+`summarize()` - calculate new aggregated columns on a grouped data frame
+```{r}
+foo %>% summarize( avg.mpg = mean(mpg) , n.in.group = n() )
+```
+
+
+
+### SQL style verbs
+`left_join()`
+`inner_join()`
+`right_join()`
+`full_join()`
+`semi_join()`
+`anti_join()`
