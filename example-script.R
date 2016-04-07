@@ -1,3 +1,5 @@
+foo  <- read.some.file
+
 cyl6 <- mtcars[mtcars$cyl==6,]
 cyl4 <- mtcars[mtcars$cyl==4,]
 

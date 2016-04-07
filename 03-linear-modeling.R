@@ -46,10 +46,9 @@ boxplot(ourdata$hasweatherdelay ~ ourdata$OriginState)
 #make a model
 weatherfstate  <- lm( hasweatherdelay ~ OriginState, data = ourdata) 
 
-# are our overall results significant?
-anovaweather  <- anova(weatherfstate)
 
-# lets plot it out
+# lets plot out our coefficients
+
   # get the confidence intervals
   confintweather  <- confint(weatherfstate)
 
