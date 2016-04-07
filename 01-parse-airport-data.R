@@ -55,11 +55,9 @@ ourdata  <- jan2015  %>%
     , hasweatherdelay = !is.na(WeatherDelay)
   )
 
+# use a random subset of the data for general demonstration purposes ----------------------------
+
 set.seed(123) # so we all get the same data
 bearabledata  <- sample_n(ourdata, 10000)  %>% 
   tbl_df
   
-
-
-
-

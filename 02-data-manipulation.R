@@ -48,6 +48,7 @@ class(ourdata$Carrier)
   
   # subsetting
   bearable2 <- bearabledata  %>% 
+    
     # subset by criteria
     filter(
         !is.na(FlightDate)
@@ -55,6 +56,7 @@ class(ourdata$Carrier)
       , DepDelayMinutes <= 100
       , !is.na(ArrivalDelayGroups)
     )   %>% 
+    
     # only grab the columns we need and rename a few
     select(
         FlightDate
@@ -65,6 +67,7 @@ class(ourdata$Carrier)
       , adelay = ArrDelayMinutes
       , adelaygroup = ArrivalDelayGroups
     )  %>% 
+    
     # add calculated columns
     mutate(
         logddelay = log(ddelay + 1)
@@ -117,9 +120,6 @@ boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier, ylim = c(0, 40) )
 
 # delay over time 
 plot(bearabledata$FlightDate, bearabledata$ArrDelayMinutes)
-
-
-
 
 
 

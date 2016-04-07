@@ -31,15 +31,46 @@ t.test(cyl6$mpg, cyl4$mpg)
     - avoid overwriting your objects
     
 
-3. There's No Shame in Using Libraries
+3. There's No Shame in Using Packages
 
     - lots of tasks are a pain in base R, munging, dates, etc
     - use libraries:
-        - dplyr
-        - lubridate
-        - tidyr
-        - ggplot2
-        - magrittr
+        - dplyr - general data manipulation
+        - lubridate - dealing with dates
+        - tidyr - tidy data and move from normalized to denormalized formats
+        - ggplot2 - fancy plotting
+        - magrittr - piping
         
-4. Jump Into the Analysis
+4. Functional vs. Piping (via dplyr, magrittr)
+
+    - R is a functional programming language, meaning everything is nested functions
+    - the pipe operator %>% allows you to string commangs together linearly
+        - keeps arguments togethe
+        - makes code a LOT easier to read, write and think through
+    
+```{r echo = T}
+# load the dplyr library
+library(dplyr, warn.conflicts = F)
+
+# the base R way to do it
+head( mtcars[order(mtcars$hp) , c(1,2,10,4)], 10)
+
+# using dplyr, but still way too confusing
+head(arrange(select(mtcars, mpg, cyl, gear, hp), hp), 10)
+
+
+# using the pipe
+mtcars  %>% 
+  select(mpg, cyl, gear, hp) %>% 
+  arrange(hp)  %>% 
+  head(10)
+```
+    
+5. Stuff We Won't Cover
+
+    - generating random data
+    - more complex models (like random forests!)
+    - general probabilty questions, density functions, etc.
+        
+6. "Real Life" examples with the airline data
     

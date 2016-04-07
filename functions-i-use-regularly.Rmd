@@ -134,7 +134,7 @@ View(mtcars)
 `exists()` - check if an object exists
 ```{r}
 # check to make sure foo exists before you bother reading it in
-if( !exists("foo") ) { read.csv("foo.csv") }
+if( !exists("foo") ) { read.csv("data/foo.csv") }
 ```
 
 `rm()` - remove an object
@@ -149,7 +149,7 @@ rm(list = ls() )
 `read.csv()` - read a csv file from disk into a data frame
 ```{r}
 # read in foo.csv
-foo  <- read.csv("foo.csv", stringsAsFactors = F)
+foo  <- read.csv("data/foo.csv", stringsAsFactors = F)
 
 # read a tab separated spreadsheet on the clipboard
 bar  <- read.csv("clipboard", sep="\t", stringsAsFactors = F) 
@@ -159,7 +159,7 @@ bar  <- read.csv("clipboard", sep="\t", stringsAsFactors = F)
 `write.csv()` - write a data frame to disk
 ```{r}
 # write the object foo as foo.csv 
-write.csv(foo, file= "foo.csv", row.names = F)
+write.csv(foo, file= "output/foo.csv", row.names = F)
 
 # write the object bar to the clipboard to paste into Excel 
 write.csv(bar, file= "clipboard", sep = "\t", row.names = F)
@@ -171,7 +171,7 @@ see [(https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)]
 
 ### Base verbs
 `filter()` - filter a data frame based on criteria
-```{r}
+```{r, echo=TRUE, warning=FALSE}
 # load dplry
 library(dplyr)
 # make mtcars print nicely

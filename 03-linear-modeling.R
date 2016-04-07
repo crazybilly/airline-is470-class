@@ -6,7 +6,6 @@ library(lubridate)
 library(tidyr)
 
 library(broom)
-# data ---------------------------------------------
 
 
 # linear model hasweather v delay time ------------------------------------
