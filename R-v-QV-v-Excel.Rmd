@@ -1,0 +1,134 @@
+---
+title: "Using R vs. QlikView vs. Excel"
+output: html_notebook
+---
+
+Excel
+===================================================
+
+### Advantages
+
+- You can manipulate the data itself easily
+- Data is immediately visible
+- Visualization tools are quick and easy
+
+### Disadvantages 
+
+- Any sort of formulas on large data sets are SLOW
+- Not reproducible/updatable at all
+- Hard to do complex visualizations
+- Doing complex statisical analysis is HARD
+
+
+ Qlikview
+===================================================
+
+### Adantages 
+
+- updatable
+- visualization tools are really fast
+- very flexible
+- fast with big data sets
+
+### Disadvantages
+
+- can be really messy/you've got to do all the UI work
+- not reproducible - have to remember what filter you used
+- can be fiddly
+- statistical work is HARD
+- complex visiualization are nearly impossible
+- NULL value handling is WEIRD
+- nonstandard formula
+- sharing data with non-QV users is a mess
+
+
+R
+===================================================
+
+### Advantages
+
+- very reproducible/updatable
+- building reports is simple with R Markdown
+- simple to jump from data manipulation to statisical analysis
+- cutting edge statistical methods are a few keystrokes away
+- complex plotting is possible
+- you can do anything (incl. file manipulation)
+- fast with big data sets
+
+### Disadvantages
+
+- it's a programming language, so you have to learn it
+- it's crusty if you stick with base R (this is being solved by the tidyverse)
+- interactive plotting isn't really there yet
+- sharing data with non-R users can be a little fiddly
+
+
+
+Best Tool for the Job
+==============================
+
+### Pulling a mailing list from a database
+
+- use SQL or R
+  - the data changes daily, so you want to be able to save your criteria and run it against live data
+  - Excel would be a nightmare
+  - QV you could save a bookmark, I guess?
+    - but can you do complex OR filtering in QV?
+  - R allows you do that simply:
+  
+```{r}
+mymailinglist  <- mydatabasetable %>% 
+  filter(
+      # do they have a mailing address
+      !is.na(mailing_address) 
+      
+      # they haven't opted out
+    , (is.na(mail_opt_out_code) | mail_opt_out_code == 'N')
+    
+      # is identified as target or is a lawyer in Decatur
+    , (is_identified_target | (city == 'Decatur' & job_title == 'Lawyer' ) ) 
+    
+  ) %>% 
+  select(id, name, mailing_address, city, st, zip) %>% 
+  collect()
+```
+
+
+### Statistical Analysis 
+
+- use R
+   - runni
+   
+### Predictive Modeling
+- use R
+```{r}
+
+summary(
+t.test(
+cor(
+
+
+```
+
+```{r}
+
+lm_model     <- 
+glm_model    <- 
+rf_model     <- 
+caret_model  <- 
+
+
+```
+   
+### Build Executive Dashboard  
+
+- use QlikView (or Shiny in R)
+
+### Generate a Weekly Report with plots and tables
+
+- use R -> Excel or R Markdown
+
+
+
+
+  

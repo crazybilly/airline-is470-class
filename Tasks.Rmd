@@ -1,0 +1,141 @@
+---
+title: "Common Tasks"
+author: "Jake Tolbert"
+date: "October 25, 2017"
+output: html_document
+---
+
+Complex Mailing Lists
+==============================
+
+Use R (or SQL or SAS or some such). 
+
+- Data can change underneath, but criteria can be saved.
+- QV has no way to do complex filtering eg:
+    - T&D majors around Decatur OR $1000 lifetime gifts to T&D
+    
+```{r eval=FALSE, include=FALSE}
+
+tdmajors  <- majors_tbl %>% 
+  filter( major == 'TD'  ) 
+
+arounddecatur  <- regions_tbl %>% 
+  filter( region == 'DECATUR' )
+
+
+td_around_decatur  <- tdmajors %>% 
+  semi_join(arounddecatur, by = 'pidm') %>% 
+  distinct(pidm)
+
+
+
+td_donors  <- donors_tbl %>% 
+  filter(td_gifts  >= 1000 ) %>% 
+  distinct(pidm)
+
+
+
+my_mailing  <- bind_rows( td_around_decatur, td_donors) %>% 
+  left_join( 
+    demographic_tbl %>% 
+        select(pidm, name, address, city, st, zip)
+      , by = 'pidm', copy = T
+  ) %>% 
+  collect()
+```
+
+
+Exploratory Analysis
+==============================
+
+When you're looking for relationships or patterns in your data, QV can be pretty good.
+
+Load the data in, set up a bunch of list boxes and charts and click around, looking for insights. It's simple and easy and the results are immediate.
+
+
+
+Statisical Analysis
+==============================
+
+Use R. 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(magrittr)
+library(randomForest)
+library(caret)
+library(broom)
+
+airlinedata  <- read_csv('data/On_Time_On_Time_Performance_2017_1.csv') %>% 
+  mutate( 
+      FlightDate = ymd(FlightDate) 
+    , Origin = factor(Origin)
+    , UniqueCarrier = factor(UniqueCarrier)
+  )
+
+
+
+set.seed(500)
+mydata  <- airlinedata %>% sample_n(5000) %>% 
+  replace_na(list( ArrDelayMinutes = 0, ArrDelay = 0))
+  
+```
+
+### Quick Summary Data
+```{r}
+summary(airlinedata$DepDelay)
+hist(airlinedata$DepDelay)
+boxplot(airlinedata$DepDelay ~ airlinedata$UniqueCarrier, ylim = c(0,50))
+```
+
+### More Complex Analytical Tasks
+
+```{r}
+cor.test(as.numeric(airlinedata$UniqueCarrier), airlinedata$DepDelay)
+
+t.test(
+    airlinedata %>% filter(Origin == 'ORD') %>% extract2('DepDelay')
+  , airlinedata %>% filter(Origin == 'CLT') %>% extract2('DepDelay')
+)
+```
+
+
+### Building Statistical Models
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+lm_model     <- lm(ArrDelayMinutes ~ DayOfWeek + UniqueCarrier, data = mydata  )
+rf_model     <- randomForest(
+                      x = mydata %>% select(DayOfWeek, UniqueCarrier)
+                    , y = mydata$ArrDelayMinutes
+                )
+caret_model  <- train(
+                      x = mydata %>% select(DayOfWeek, UniqueCarrier)
+                    , y = mydata$ArrDelayMinutes  
+                    , trControl = trainControl(number = 5)
+                )
+```
+
+```{r}
+
+tidy(lm_model)
+rf_model
+caret_model
+
+```
+
+Once you've built your models, you can predict new cases.
+
+```{r}
+newdata  <- data_frame(
+    DayOfWeek      = c(1L,2L,3L,4L,5L)
+  , UniqueCarrier  = factor(c("AA", "AS", "EV", "WN", "OO"), levels = levels(mydata$UniqueCarrier))
+)
+
+
+predictions  <- predict(caret_model, newdata)
+
+newdata$predictedDelay  <- predictions
+newdata
+```
+
+
+

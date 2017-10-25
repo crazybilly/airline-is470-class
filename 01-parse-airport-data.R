@@ -8,24 +8,24 @@ library(tidyr)
 # data ---------------------------------------------
 
 # if we haven't read the file yet, read it in
-if(!exists('jan2015')) {
+if(!exists('jan2017')) {
   
   # if the file doesn't exist yet, download it
-  if( !file.exists('data/On_Time_On_Time_Performance_2015_1.zip')) {
+  if( !file.exists('data/On_Time_On_Time_Performance_2017_1.zip')) {
     
       # you may need to use a different method argument for Mac/Linux
-      download.file(
-            url = 'http://tsdata.bts.gov/PREZIP/On_Time_On_Time_Performance_2015_1.zip'
-          , destfile = 'data/On_Time_On_Time_Performance_2015_1.zip'
-      )
+      # download.file(
+            # url = 'http://tsdata.bts.gov/PREZIP/On_Time_On_Time_Performance_2015_1.zip'
+          # , destfile = 'data/On_Time_On_Time_Performance_2015_1.zip'
+      # )
     
       # unzip the data
-      unzip('data/On_Time_On_Time_Performance_2015_1.zip', exdir = 'data')
+      unzip('data/On_Time_On_Time_Performance_2017_1.zip', exdir = 'data')
   }
 
 
   # read in the file
-  jan2015  <- read.csv('data/On_Time_On_Time_Performance_2015_1.csv'
+  jan2017  <- read.csv('data/On_Time_On_Time_Performance_2017_1.csv'
                 , stringsAsFactors = F
   )  
 }
@@ -33,24 +33,24 @@ if(!exists('jan2015')) {
 
 # initial manipulation ----------------------------------------------------
 
-ourdata  <- jan2015  %>%  
+ourdata  <- jan2017  %>%  
   mutate(
       # make the flight date into a date
       FlightDate = ymd(FlightDate)
-    , DepTime = ymd_hm(
-                  paste(
-                      FlightDate
-                    , sub( '(..)$' , ':\\1' , DepTime )
-                  )
-                )
+    , DepTime    = ymd_hm(
+                     paste(
+                          FlightDate
+                        , sub( '(..)$' , ':\\1' , DepTime )
+                     ) 
+                   )
       
       # turn category data into factors
-    , Carrier = factor(Carrier)
+    , Carrier         = factor(Carrier)
     , OriginAirportID = factor(OriginAirportID)
-    , Origin = factor(Origin)
-    , OriginState = factor(OriginState)
-    , DestAirportID = factor(DestAirportID)
-    , Dest = factor(Dest)
+    , Origin          = factor(Origin)
+    , OriginState     = factor(OriginState)
+    , DestAirportID   = factor(DestAirportID)
+    , Dest            = factor(Dest)
     
     , hasweatherdelay = !is.na(WeatherDelay)
   )

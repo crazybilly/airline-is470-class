@@ -1,0 +1,81 @@
+---
+title: "Compare Tools"
+author: "Jake Tolbert"
+date: "October 25, 2017"
+output: html_document
+---
+
+### Speed 
+in terms of processing and general usability
+
+- Excel always displays all the data which is SLOW
+- QV is REALLY fast
+- R is fast IF you don't print, or print small sections
+
+
+### Updating Data
+what happens when the underlying data changes as you're doing your analysis?
+
+- with Excel, you panic and/or use some complex system of formulas that drag your workbook to a halt
+- with QV, you just hit reload
+- with R, you just run the script(s) again
+
+## Reproducible Analysis
+Is your work shareable with others? Can you repurpose bits of your analysis other places?
+
+- Excel - may God have mercy on your soul
+- in QV, you can re-use load scripts, but not the analysis itself
+- in R, you can build functions and re-use them as needed. Or build a package and distribute it really simply
+
+### Workflow flexibility
+How easy is it to work your way (verses "doing things the Qlikview way")
+
+- in Excel, you can do whatever you want--it's just a giant grid
+- in QV, you can build whatever you can imagine
+- in R, you really need to work the R way
+
+### Capabilities
+What can the program do?
+
+- in Excel, there's a lot of functions, but it's still just a giant grid
+- QV has a lot of functions, but using variables is royal pain, there's no NULL handling, and statistical tools are terrible
+- R can do anything and everything from SQL work to statistical analysis to file management
+
+### Fiddly-ness
+How much do you have to jack around with it to get stuff to work? How many gotchas?
+
+- Excel can usually guess what you're trying to do
+- QV can be a pain, particularly with set analysis and NULL handling
+- R has a bunch of goofy data types, like factors that look like strings but aren't and data frames which are really arrays. It's ok, once you understand it, but it's a mess to learn
+
+### Easy to Learn
+
+- Just type and go in Excel
+- anybody want to explain QV's set analysis to the average lay person?
+- R is a WEIRD language, but the tidyverse is making it a LOT easier to deal with
+
+### Statistical Analysis
+
+- can you do boxplots in Excel?
+- You can't do boxplots in QV
+- Just use R
+
+### Simple Plotting
+
+- Excel is the fastest/easiest way
+- Flipiping anything to a plot in QV is simple
+- Plotting in R is complex
+
+### Complex Plotting
+
+- good luck doing fancy stuff in Excel
+- You can probably do it in QV if you're patient and like clicking boxes
+- complex plots in R aren't much harder than simple plots
+
+### Sharing Your Analyis
+
+- eveybody's got Excel and it formats pretty
+- when QV is set up well, it's not terrible (but export to Excel is ugly)
+- R can be great (RMD) but it's fiddly and hard to learn
+
+

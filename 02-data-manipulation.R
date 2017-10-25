@@ -11,8 +11,8 @@ library(ggplot2)
 # general data analysis ---------------------------------------------------
 
 # general form
-str(bearabledata)
-str(bearabledata, list.len = 999 )
+glimpse(bearabledata)
+glimpse(bearabledata, list.len = 999 )
 
 # size and columns
 dim(bearabledata)
@@ -120,8 +120,6 @@ boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier, ylim = c(0, 40) )
 
 # delay over time 
 plot(bearabledata$FlightDate, bearabledata$ArrDelayMinutes)
-
-
 
 
 # better plotting with ggplot2 --------------------------------------------
