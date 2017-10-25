@@ -14,7 +14,7 @@ Use R (or SQL or SAS or some such).
 - QV has no way to do complex filtering eg:
     - T&D majors around Decatur OR $1000 lifetime gifts to T&D
     
-```{r eval=FALSE, include=FALSE}
+```{r echo=TRUE, eval = FALSE}
 
 tdmajors  <- majors_tbl %>% 
   filter( major == 'TD'  ) 
@@ -57,9 +57,18 @@ Load the data in, set up a bunch of list boxes and charts and click around, look
 Statisical Analysis
 ==============================
 
-Use R. 
+Use R for complex statistical analysis.
+
 ```{r message=FALSE, warning=FALSE, include=FALSE}
+
+knitr::opts_chunk$set(
+    cache = T
+  , highlight = T
+)
+
+
 library(tidyverse)
+library(lubridate)
 library(magrittr)
 library(randomForest)
 library(caret)
@@ -84,12 +93,12 @@ mydata  <- airlinedata %>% sample_n(5000) %>%
 ```{r}
 summary(airlinedata$DepDelay)
 hist(airlinedata$DepDelay)
-boxplot(airlinedata$DepDelay ~ airlinedata$UniqueCarrier, ylim = c(0,50))
+boxplot(airlinedata$DepDelay ~ airlinedata$UniqueCarrier, ylim = c(-20,50))
 ```
 
 ### More Complex Analytical Tasks
 
-```{r}
+```{r highlight = T}
 cor.test(as.numeric(airlinedata$UniqueCarrier), airlinedata$DepDelay)
 
 t.test(
@@ -101,12 +110,14 @@ t.test(
 
 ### Building Statistical Models
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-lm_model     <- lm(ArrDelayMinutes ~ DayOfWeek + UniqueCarrier, data = mydata  )
+```{r echo=T, message=FALSE, warning=FALSE}
+lm_model     <- lm(ArrDelayMinutes ~ DayOfWeek + AirTime, data = mydata  )
+
 rf_model     <- randomForest(
                       x = mydata %>% select(DayOfWeek, UniqueCarrier)
                     , y = mydata$ArrDelayMinutes
                 )
+
 caret_model  <- train(
                       x = mydata %>% select(DayOfWeek, UniqueCarrier)
                     , y = mydata$ArrDelayMinutes  
