@@ -134,25 +134,34 @@ $(document).ready(function () {
 <li>T&amp;D majors around Decatur OR $1000 lifetime gifts to T&amp;D</li>
 </ul></li>
 </ul>
-<pre class="r"><code>tdmajors  &lt;- majors_tbl %&gt;% 
+<pre class="r"><code># imagine I'm connected to a database with databases:
+#   - majors_tbl with pidm, major
+#   - regions_tbl with pidm, region
+#   - donors_tbl with pidm, td_gifts, athletics_gifts, uc_gifts, scholarship_gifts
+#   - demographic_tbl with pidm, mailing address, and more ...
+
+ 
+# get a list of all Theatre &amp; Dance majors
+tdmajors  &lt;- majors_tbl %&gt;% 
   filter( major == 'TD'  ) 
 
+# get a list of everybody around Decatur
 arounddecatur  &lt;- regions_tbl %&gt;% 
   filter( region == 'DECATUR' )
 
-
+# get T&amp;D majors around Decatur
 td_around_decatur  &lt;- tdmajors %&gt;% 
   semi_join(arounddecatur, by = 'pidm') %&gt;% 
   distinct(pidm)
 
 
-
+# get donors who've given $1000+ to Theatre &amp; Dance building
 td_donors  &lt;- donors_tbl %&gt;% 
   filter(td_gifts  &gt;= 1000 ) %&gt;% 
   distinct(pidm)
 
 
-
+#combine both lists then add mailing data
 my_mailing  &lt;- bind_rows( td_around_decatur, td_donors) %&gt;% 
   left_join( 
     demographic_tbl %&gt;% 
@@ -209,9 +218,16 @@ my_mailing  &lt;- bind_rows( td_around_decatur, td_donors) %&gt;%
 ## mean of x mean of y 
 ##  13.76416   5.45093</code></pre>
 </div>
+<div id="creating-a-report-for-others" class="section level3">
+<h3>Creating a Report for Others</h3>
+<ol style="list-style-type: decimal">
+<li>Build with R Markdown - integrate Markdown + R into generated html/pdf.</li>
+<li>Use QV for dashboards, etc. You can use R (using Shiny and Shiny Dashboards), but QV is designed for this sort of thing.</li>
+</ol>
+</div>
 <div id="building-statistical-models" class="section level3">
 <h3>Building Statistical Models</h3>
-<pre class="r"><code>lm_model     &lt;- lm(ArrDelayMinutes ~ DayOfWeek + UniqueCarrier, data = mydata  )
+<pre class="r"><code>lm_model     &lt;- lm(ArrDelayMinutes ~ DayOfWeek + AirTime, data = mydata  )
 
 rf_model     &lt;- randomForest(
                       x = mydata %&gt;% select(DayOfWeek, UniqueCarrier)
@@ -219,26 +235,16 @@ rf_model     &lt;- randomForest(
                 )
 
 caret_model  &lt;- train(
-                      x = mydata %&gt;% select(DayOfWeek, UniqueCarrier)
+                      x = mydata %&gt;% select(DayOfWeek, UniqueCarrier )
                     , y = mydata$ArrDelayMinutes  
-                    , trControl = trainControl(number = 5)
+                    , trControl = trainControl(number = 3)
                 )</code></pre>
 <pre><code>## note: only 1 unique complexity parameters in default grid. Truncating the grid to 1 .</code></pre>
 <pre class="r"><code>tidy(lm_model)</code></pre>
-<pre><code>##               term   estimate std.error statistic      p.value
-## 1      (Intercept)  8.1314419 1.8231441  4.460120 8.371396e-06
-## 2        DayOfWeek  0.5889191 0.2883354  2.042479 4.115648e-02
-## 3  UniqueCarrierAS  3.7388664 3.6827623  1.015234 3.100434e-01
-## 4  UniqueCarrierB6  5.5893380 2.8788173  1.941540 5.224910e-02
-## 5  UniqueCarrierDL  2.8469793 2.0595799  1.382311 1.669382e-01
-## 6  UniqueCarrierEV  4.7224841 2.6273368  1.797442 7.232603e-02
-## 7  UniqueCarrierF9 14.1702088 4.8613250  2.914886 3.574022e-03
-## 8  UniqueCarrierHA  5.3641934 5.2975800  1.012574 3.113127e-01
-## 9  UniqueCarrierNK  3.7925653 3.7666875  1.006870 3.140460e-01
-## 10 UniqueCarrierOO 13.0678578 2.2999876  5.681708 1.409250e-08
-## 11 UniqueCarrierUA  6.3729596 2.4745134  2.575439 1.003982e-02
-## 12 UniqueCarrierVX  9.6395034 5.7056254  1.689474 9.119122e-02
-## 13 UniqueCarrierWN  2.7255567 1.8926670  1.440061 1.499128e-01</code></pre>
+<pre><code>##          term    estimate   std.error statistic      p.value
+## 1 (Intercept) 10.72707699 1.599167750  6.707912 2.198067e-11
+## 2   DayOfWeek  0.67730736 0.295289333  2.293708 2.184950e-02
+## 3     AirTime  0.01526481 0.008157069  1.871360 6.135482e-02</code></pre>
 <pre class="r"><code>rf_model</code></pre>
 <pre><code>## 
 ## Call:
@@ -256,12 +262,12 @@ caret_model  &lt;- train(
 ##    2 predictor
 ## 
 ## No pre-processing
-## Resampling: Bootstrapped (5 reps) 
-## Summary of sample sizes: 5000, 5000, 5000, 5000, 5000 
+## Resampling: Bootstrapped (3 reps) 
+## Summary of sample sizes: 5000, 5000, 5000 
 ## Resampling results:
 ## 
 ##   RMSE      Rsquared     MAE     
-##   41.47508  0.004959329  21.24815
+##   42.15519  0.005476765  21.49141
 ## 
 ## Tuning parameter 'mtry' was held constant at a value of 2</code></pre>
 <p>Once you’ve built your models, you can predict new cases.</p>

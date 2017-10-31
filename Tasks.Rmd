@@ -16,25 +16,34 @@ Use R (or SQL or SAS or some such).
     
 ```{r echo=TRUE, eval = FALSE}
 
+# imagine I'm connected to a database with databases:
+#   - majors_tbl with pidm, major
+#   - regions_tbl with pidm, region
+#   - donors_tbl with pidm, td_gifts, athletics_gifts, uc_gifts, scholarship_gifts
+#   - demographic_tbl with pidm, mailing address, and more ...
+
+ 
+# get a list of all Theatre & Dance majors
 tdmajors  <- majors_tbl %>% 
   filter( major == 'TD'  ) 
 
+# get a list of everybody around Decatur
 arounddecatur  <- regions_tbl %>% 
   filter( region == 'DECATUR' )
 
-
+# get T&D majors around Decatur
 td_around_decatur  <- tdmajors %>% 
   semi_join(arounddecatur, by = 'pidm') %>% 
   distinct(pidm)
 
 
-
+# get donors who've given $1000+ to Theatre & Dance building
 td_donors  <- donors_tbl %>% 
   filter(td_gifts  >= 1000 ) %>% 
   distinct(pidm)
 
 
-
+#combine both lists then add mailing data
 my_mailing  <- bind_rows( td_around_decatur, td_donors) %>% 
   left_join( 
     demographic_tbl %>% 
@@ -108,6 +117,14 @@ t.test(
 ```
 
 
+
+### Creating a Report for Others
+
+1. Build with R Markdown - integrate Markdown + R into generated html/pdf.
+2. Use QV for dashboards, etc. You can use R (using Shiny and Shiny Dashboards), but QV is designed for this sort of thing. 
+
+
+
 ### Building Statistical Models
 
 ```{r echo=T, message=FALSE, warning=FALSE}
@@ -119,9 +136,9 @@ rf_model     <- randomForest(
                 )
 
 caret_model  <- train(
-                      x = mydata %>% select(DayOfWeek, UniqueCarrier)
+                      x = mydata %>% select(DayOfWeek, UniqueCarrier )
                     , y = mydata$ArrDelayMinutes  
-                    , trControl = trainControl(number = 5)
+                    , trControl = trainControl(number = 3)
                 )
 ```
 
