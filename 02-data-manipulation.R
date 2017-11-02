@@ -11,43 +11,43 @@ library(ggplot2)
 # general data analysis ---------------------------------------------------
 
 # general form
-glimpse(bearabledata)
-glimpse(bearabledata, list.len = 999 )
+glimpse(mydata)
+glimpse(mydata, list.len = 999 )
 
 # size and columns
-dim(bearabledata)
-nrow(bearabledata)
-names(bearabledata)
+dim(mydata)
+nrow(mydata)
+names(mydata)
 
 # "I can't see it all!!"
-View(bearabledata)
+View(mydata)
 
 # what am I dealing with
-class(ourdata)
-class(bearabledata)
-class(ourdata$Year)
-class(ourdata$Carrier)
+class(airlinedata)
+class(mydata)
+class(airlinedata$Year)
+class(airlinedata$Carrier)
 
 
 # subsetting data with traditional R methods -------------------------------
 
   # with $ (returns a vector)
-  ourdata$DepDelayMinutes
+  airlinedata$DepDelayMinutes
   
   # with single [ ]
-  ourdata[3] # a 1 column data frame (because data frames are lists)
-  ourdata[1:2, 3:5] # a 2:3 data frame
+  airlinedata[3] # a 1 column data frame (because data frames are lists)
+  airlinedata[1:2, 3:5] # a 2:3 data frame
   
   # with double [[ ]]
-  ourdata[[3]] # a vector
-  ourdata[[2, 3]] # a single value
+  airlinedata[[3]] # a vector
+  airlinedata[[2, 3]] # a single value
   
   
 # subsetting and manipulation with dplyr ---------------------------
   
   
   # subsetting
-  bearable2 <- bearabledata  %>% 
+  bearable2 <- mydata  %>% 
     
     # subset by criteria
     filter(
@@ -79,7 +79,7 @@ class(ourdata$Carrier)
   
   # quick pivot tables
     # summaries by Destination State
-  bearabledata %>% 
+  mydata %>% 
     group_by(DestState)  %>% 
     summarize(
         n = n()
@@ -100,38 +100,38 @@ class(ourdata$Carrier)
 
 # general statistical analysis -------------------------------------
   
-summary(bearabledata$DepDelayMinutes)
+summary(mydata$DepDelayMinutes)
   
-sum(bearabledata$DepDelayMinutes, na.rm = T)
-mean(bearabledata$DepDelayMinutes, na.rm = T)
-median(bearabledata$DepDelayMinutes, na.rm = T)
-IQR(bearabledata$DepDelayMinutes, na.rm = T)
-quantile(bearabledata$DepDelayMinutes, na.rm = T)
+sum(mydata$DepDelayMinutes, na.rm = T)
+mean(mydata$DepDelayMinutes, na.rm = T)
+median(mydata$DepDelayMinutes, na.rm = T)
+IQR(mydata$DepDelayMinutes, na.rm = T)
+quantile(mydata$DepDelayMinutes, na.rm = T)
 
 
 # general plotting --------------------------------------------------------
 
 # histogram of delay groups
-hist(bearabledata$ArrivalDelayGroups)
+hist(mydata$ArrivalDelayGroups)
 
 # boxplot of delay by carrier
-boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier)
-boxplot(bearabledata$ArrDelayMinutes ~ bearabledata$Carrier, ylim = c(0, 40) )
+boxplot(mydata$ArrDelayMinutes ~ mydata$Carrier)
+boxplot(mydata$ArrDelayMinutes ~ mydata$Carrier, ylim = c(0, 40) )
 
 # delay over time 
-plot(bearabledata$FlightDate, bearabledata$ArrDelayMinutes)
+plot(mydata$FlightDate, mydata$ArrDelayMinutes)
 
 
 # better plotting with ggplot2 --------------------------------------------
 
 # dates vs. Arrival delay, color coded by carrier
-ggplot(bearabledata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
   geom_point(aes(color = Carrier)) + 
   geom_smooth() 
 
 # dates vs. Arrival delay, color coded by carrier
     # with ymax = 100 and some jitter
-ggplot(bearabledata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
   geom_jitter(alpha = .5, aes(color = Carrier)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100))
@@ -139,7 +139,7 @@ ggplot(bearabledata, aes(x = FlightDate, y = ArrDelayMinutes)) +
 
 # dates vs. Arrival delay, color coded and faceted by carrier
     # with ymax = 100 and some jitter
-ggplot(bearabledata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
   geom_jitter(alpha = .5, aes(color = Carrier)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100)) + 

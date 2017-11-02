@@ -116,25 +116,25 @@ summary(airlinedata$DepDelay)
 
 ## Quick Summary Data 
 ```{r}
-hist(airlinedata$DepDelay)
+hist(airlinedata$ArrDelay)
 ```
 
 ## Quick Summary Data 
 ```{r}
-boxplot(airlinedata$DepDelay ~ airlinedata$UniqueCarrier, ylim = c(-20,50))
+boxplot(airlinedata$ArrDelay ~ airlinedata$UniqueCarrier, ylim = c(-20,50))
 ```
 
 ## More Complex Analytical Tasks
 
 ```{r highlight = T}
-cor.test(as.numeric(airlinedata$UniqueCarrier), airlinedata$DepDelay)
+cor.test(as.numeric(airlinedata$UniqueCarrier), airlinedata$ArrDelay)
 ```
 
 ## More Complex Analytical Tasks
 ```{r highlight = T}
 t.test(
-    airlinedata %>% filter(Origin == 'ORD') %>% extract2('DepDelay')
-  , airlinedata %>% filter(Origin == 'CLT') %>% extract2('DepDelay')
+    airlinedata %>% filter(Origin == 'ORD') %>% extract2('ArrDelay')
+  , airlinedata %>% filter(Origin == 'CLT') %>% extract2('ArrDelay')
 )
 ```
 
@@ -197,13 +197,8 @@ newdata
 
 
 ## Use the Tidyverse
-
 - a series of packages creating a new grammar for R
-- packages include
-  - dplyr
-  - ggplot2
-  - tidyr
-  - the pipe
+![](tidyverse.png)
 
 ## Base R - Use Nested Functions
 ```{r echo=TRUE, eval = FALSE, highlight = TRUE}
@@ -294,3 +289,11 @@ ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) +
   coord_cartesian(ylim = c(0,100)) + 
   facet_wrap(~Carrier)
 ```
+
+
+### Lots More Code Examples on Github
+
+- https://github.com/crazybilly/airline-is470-class
+  - clone the repo to your desktop and open airline-project.Rproj
+- documentation in Rmd/html files
+- code examples in R files

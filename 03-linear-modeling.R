@@ -10,13 +10,13 @@ library(broom)
 
 # linear model hasweather v delay time ------------------------------------
 
-arrivalfdeparture <- lm(ArrDelayMinutes ~ DepDelayMinutes , data = ourdata)
+arrivalfdeparture <- lm(ArrDelayMinutes ~ DepDelayMinutes , data = airlinedata)
 
 
 # linear model delay time v weather + state -------------------------------
 
 
-delayfothers   <- lm(ArrDelay ~ hasweatherdelay + DepDelayMinutes , data = ourdata)
+delayfothers   <- lm(ArrDelay ~ hasweatherdelay + DepDelayMinutes , data = airlinedata)
 
 readablefothers  <- broom::tidy(delayfothers)  %>% 
   mutate(
@@ -29,7 +29,7 @@ readablefothers  <- broom::tidy(delayfothers)  %>%
 # are some states worse about weather delays? -----------------------------
 
 
-weatherdelaybystate  <- ourdata  %>% 
+weatherdelaybystate  <- airlinedata  %>% 
   select(hasweatherdelay, OriginState)  %>% 
   group_by(OriginState)  %>% 
   summarize(
@@ -41,10 +41,10 @@ weatherdelaybystate  <- ourdata  %>%
 
 
 # is a box plot useful?
-boxplot(ourdata$hasweatherdelay ~ ourdata$OriginState)
+boxplot(airlinedata$hasweatherdelay ~ airlinedata$OriginState)
 
 #make a model
-weatherfstate  <- lm( hasweatherdelay ~ OriginState, data = ourdata) 
+weatherfstate  <- lm( hasweatherdelay ~ OriginState, data = airlinedata) 
 
 
 # lets plot out our coefficients
