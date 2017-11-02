@@ -2,8 +2,6 @@
 title: "Using R for Analysis"
 output:
   slidy_presentation: default
-  beamer_presentation: default
-  ioslides_presentation: default
 ---
 
 ## Jake Tolbert
