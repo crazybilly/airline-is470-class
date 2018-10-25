@@ -13,3 +13,6 @@ lattice
 caret
 broom
 bindrcpp
+beepr
+stringr
+forcats

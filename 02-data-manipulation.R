@@ -25,14 +25,14 @@ View(mydata)
 # what am I dealing with
 class(airlinedata)
 class(mydata)
-class(airlinedata$Year)
-class(airlinedata$Carrier)
+class(airlinedata$MONTH)
+class(airlinedata$UNIQUE_CARRIER)
 
 
 # subsetting data with traditional R methods -------------------------------
 
   # with $ (returns a vector)
-  airlinedata$DepDelayMinutes
+  airlinedata$DEP_DELAY
   
   # with single [ ]
   airlinedata[3] # a 1 column data frame (because data frames are lists)
@@ -52,27 +52,25 @@ class(airlinedata$Carrier)
     # subset by criteria
     filter(
         !is.na(FlightDate)
-      , OriginState == 'TX'
-      , DepDelayMinutes <= 100
-      , !is.na(ArrivalDelayGroups)
+      , str_detect(Origin, "TX") # origin has "TX" in it
+      , DEP_DELAY <= 100
+      , !is.na(ARR_DELAY)
     )   %>% 
     
     # only grab the columns we need and rename a few
     select(
         FlightDate
       , Carrier
-      , city = OriginCityName
-      , st = OriginState
-      , ddelay = DepDelayMinutes
-      , adelay = ArrDelayMinutes
-      , adelaygroup = ArrivalDelayGroups
+      , fromcity = Origin
+      , ddelay = DEP_DELAY
+      , adelay = ARR_DELAY
     )  %>% 
     
     # add calculated columns
     mutate(
         logddelay = log(ddelay + 1)
       , logadelay = log(adelay + 1)
-      , fromDallas = grepl("Dallas", city)
+      , fromDallas = grepl("Dallas", fromcity)
       , delaytype = ifelse(adelay >= 30, "big delay", "small delay")
     )
   
@@ -80,58 +78,58 @@ class(airlinedata$Carrier)
   # quick pivot tables
     # summaries by Destination State
   mydata %>% 
-    group_by(DestState)  %>% 
+    group_by(Carrier)  %>% 
     summarize(
         n = n()
-      , meanDelay = mean(ArrDelay, na.rm = T)
-      , totalDelayMin = sum(ArrDelayMinutes, na.rm = T)
+      , meanDelay = mean(ARR_DELAY, na.rm = T)
+      , totalDelayMin = sum(ARR_DELAY, na.rm = T)
     )
   
   # advanced pivots 
   #    ie. going from long to wide, see http://vita.had.co.nz/papers/tidy-data.pdf
   #   summaries with carrier in rows and delay group in columns
   bearable2  %>% 
-    group_by(Carrier, adelaygroup)  %>% 
+    group_by(Carrier, delaytype)  %>% 
     summarize(n = n() )  %>% 
-    tidyr::spread( adelaygroup, n, fill = 0)  %>% 
-    arrange(-`-2`)
+    tidyr::spread( delaytype, n, fill = 0)  %>% 
+    arrange(-`big delay`)
     
   
 
 # general statistical analysis -------------------------------------
   
-summary(mydata$DepDelayMinutes)
+summary(mydata$DEP_DELAY)
   
-sum(mydata$DepDelayMinutes, na.rm = T)
-mean(mydata$DepDelayMinutes, na.rm = T)
-median(mydata$DepDelayMinutes, na.rm = T)
-IQR(mydata$DepDelayMinutes, na.rm = T)
-quantile(mydata$DepDelayMinutes, na.rm = T)
+sum(mydata$DEP_DELAY, na.rm = T)
+mean(mydata$DEP_DELAY, na.rm = T)
+median(mydata$DEP_DELAY, na.rm = T)
+IQR(mydata$DEP_DELAY, na.rm = T)
+quantile(mydata$DEP_DELAY, na.rm = T)
 
 
 # general plotting --------------------------------------------------------
 
-# histogram of delay groups
-hist(mydata$ArrivalDelayGroups)
+# histogram of arrival delays
+hist(mydata$ARR_DELAY)
 
 # boxplot of delay by carrier
-boxplot(mydata$ArrDelayMinutes ~ mydata$Carrier)
-boxplot(mydata$ArrDelayMinutes ~ mydata$Carrier, ylim = c(0, 40) )
+boxplot(mydata$ARR_DELAY ~ mydata$Carrier)
+boxplot(mydata$ARR_DELAY ~ mydata$Carrier, ylim = c(0, 40) )
 
 # delay over time 
-plot(mydata$FlightDate, mydata$ArrDelayMinutes)
+plot(mydata$FlightDate, mydata$ARR_DELAY)
 
 
 # better plotting with ggplot2 --------------------------------------------
 
 # dates vs. Arrival delay, color coded by carrier
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ARR_DELAY)) + 
   geom_point(aes(color = Carrier)) + 
   geom_smooth() 
 
 # dates vs. Arrival delay, color coded by carrier
     # with ymax = 100 and some jitter
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ARR_DELAY)) + 
   geom_jitter(alpha = .5, aes(color = Carrier)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100))
@@ -139,7 +137,7 @@ ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) +
 
 # dates vs. Arrival delay, color coded and faceted by carrier
     # with ymax = 100 and some jitter
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
+ggplot(mydata, aes(x = FlightDate, y = ARR_DELAY)) + 
   geom_jitter(alpha = .5, aes(color = Carrier)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100)) + 

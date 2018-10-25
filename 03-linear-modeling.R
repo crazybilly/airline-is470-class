@@ -8,60 +8,51 @@ library(tidyr)
 library(broom)
 
 
-# linear model hasweather v delay time ------------------------------------
+# linear model arrival delay as a function of departure delay ------------------------------------
 
-arrivalfdeparture <- lm(ArrDelayMinutes ~ DepDelayMinutes , data = airlinedata)
-
-
-# linear model delay time v weather + state -------------------------------
+arrivalfdeparture <- lm(ARR_DELAY ~ DEP_DELAY, data = airlinedata)
 
 
-delayfothers   <- lm(ArrDelay ~ hasweatherdelay + DepDelayMinutes , data = airlinedata)
-
-readablefothers  <- broom::tidy(delayfothers)  %>% 
-  mutate(
-    term = sub("factor\\(OriginState\\)","",term)
-  )  %>% 
-  arrange(-estimate)
+# linear model arrival delay v day of the month and departure delay -------------------------------
 
 
+delayfothers   <- lm(ARR_DELAY ~ DAY_OF_MONTH + DEP_DELAY, data = airlinedata)
 
-# are some states worse about weather delays? -----------------------------
+readablefothers  <- broom::tidy(delayfothers) 
+
+# are some carriers worse than others? -----------------------------
 
 
-weatherdelaybystate  <- airlinedata  %>% 
-  select(hasweatherdelay, OriginState)  %>% 
-  group_by(OriginState)  %>% 
+delay_by_carrier <- mydata %>% 
+  group_by(Carrier) %>% 
   summarize(
-      n_weather = sum(hasweatherdelay)
-    , n = n()
-    , pct_with_weather = sum(hasweatherdelay)/n() 
+      n = n()
+    , total_delay  = sum(ARR_DELAY, na.rm = T)
+    , mean_delay   = mean(ARR_DELAY, na.rm = T) 
+    , median_delay = median(ARR_DELAY, na.rm = T) 
   )  %>% 
-  arrange(-pct_with_weather)
+  arrange(-mean_delay)
 
-
-# is a box plot useful?
-boxplot(airlinedata$hasweatherdelay ~ airlinedata$OriginState)
 
 #make a model
-weatherfstate  <- lm( hasweatherdelay ~ OriginState, data = airlinedata) 
+delaybycarriermodel <- lm( ARR_DELAY ~ Carrier, data = airlinedata) 
 
 
 # lets plot out our coefficients
 
   # get the confidence intervals
-  confintweather  <- confint(weatherfstate)
+  confintcarrier <- confint(delaybycarriermodel)
 
   # make a data frame with all the data we want in it
   confdf  <- data_frame(
-      state = sub("OriginState", "", names(weatherfstate$coefficients) )
-    , coef = weatherfstate$coefficients
-    , low = confintweather[,1]
-    , high = confintweather[,2]
+      carrier = sub("Carrier", "", names(delaybycarriermodel$coefficients) )
+    , coef = delaybycarriermodel$coefficients
+    , low  = confintcarrier[,1]
+    , high = confintcarrier[,2]
   )
   
   # plot it out
-  ggplot(confdf, aes(x = state)) + 
+  ggplot(confdf, aes(x = carrier)) + 
     
     # dot the coefficients
     geom_point(aes(y = coef)) + 
@@ -70,7 +61,7 @@ weatherfstate  <- lm( hasweatherdelay ~ OriginState, data = airlinedata)
     geom_errorbar(aes(ymin = low, ymax = high)) + 
     
     # label the bar above it for clarity
-    geom_text(aes(label = state, y = high+.02))
+    geom_text(aes(label = carrier, y = high+.02))
 
   
 

@@ -1,9 +1,8 @@
 
 # libraries ---------------------------------------------------------------
 
-library(dplyr)
+library(tidyverse)
 library(lubridate)
-library(tidyr)
 
 # data ---------------------------------------------
 
@@ -11,7 +10,7 @@ library(tidyr)
 if(!exists('jan2017')) {
   
   # if the file doesn't exist yet, download it
-  if( !file.exists('data/On_Time_On_Time_Performance_2017_1.zip')) {
+  if( !file.exists('data/airline_data_mco_2017.csv')) {
     
       # you may need to use a different method argument for Mac/Linux
       # download.file(
@@ -25,7 +24,7 @@ if(!exists('jan2017')) {
 
 
   # read in the file
-  jan2017  <- read.csv('data/On_Time_On_Time_Performance_2017_1.csv'
+  jan2017  <- read.csv('data/airline_data_mco_2017.csv'
                 , stringsAsFactors = F
   )  
 }
@@ -36,23 +35,23 @@ if(!exists('jan2017')) {
 airlinedata <- jan2017  %>%  
   mutate(
       # make the flight date into a date
-      FlightDate = ymd(FlightDate)
+      FlightDate = ymd(FL_DATE)
     , DepTime    = ymd_hm(
                      paste(
-                          FlightDate
-                        , sub( '(..)$' , ':\\1' , DepTime )
+                          FL_DATE
+                        , sub("-.*", "", DEP_TIME_BLK )
                      ) 
                    )
       
       # turn category data into factors
-    , Carrier         = factor(Carrier)
-    , OriginAirportID = factor(OriginAirportID)
-    , Origin          = factor(Origin)
-    , OriginState     = factor(OriginState)
-    , DestAirportID   = factor(DestAirportID)
-    , Dest            = factor(Dest)
+    , Carrier         = factor(UNIQUE_CARRIER)
+    , OriginAirportID = factor(ORIGIN)
+    , Origin          = factor(ORIGIN_CITY_NAME)
+    # , OriginState     = factor(OriginState)
+    , DestAirportID   = factor(DEST)
+    , Dest            = factor(DEST_CITY_NAME)
     
-    , hasweatherdelay = !is.na(WeatherDelay)
+    # , hasweatherdelay = !is.na(WeatherDelay)
   )
 
 # use a random subset of the data for general demonstration purposes ----------------------------

@@ -1,6 +1,7 @@
 ---
 title: "Using R for Analysis"
 output:
+  ioslides_presentation: default
   slidy_presentation: default
 ---
 
@@ -92,47 +93,47 @@ knitr::opts_chunk$set(
 library(tidyverse); library(lubridate); library(magrittr)
 library(randomForest); library(caret); library(broom)
 
-airlinedata  <- read_csv('data/On_Time_On_Time_Performance_2017_1.csv') %>% 
+airlinedata  <- read_csv('data/airline_data_mco_2017.csv') %>% 
   mutate( 
-      FlightDate = ymd(FlightDate) 
-    , Origin = factor(Origin)
-    , UniqueCarrier = factor(UniqueCarrier)
+      FL_DATE = ymd(FL_DATE) 
+    , ORIGIN  = factor(ORIGIN)
+    , UNIQUE_CARRIER = factor(UNIQUE_CARRIER)
   )
 
 
 set.seed(500)
 mydata  <- airlinedata %>% sample_n(5000) %>% 
-  replace_na(list( ArrDelayMinutes = 0, ArrDelay = 0))
+  replace_na(list( ARR_DELAY = 0,    ARR_DELAY= 0))
   
 ```
 
 ## Quick Summary Data
 ```{r}
-summary(airlinedata$DepDelay)
+summary(airlinedata$DEP_DELAY)
 ```
 
 
 ## Quick Summary Data 
 ```{r}
-hist(airlinedata$ArrDelay)
+hist(airlinedata$ARR_DELAY)
 ```
 
 ## Quick Summary Data 
 ```{r}
-boxplot(airlinedata$ArrDelay ~ airlinedata$UniqueCarrier, ylim = c(-20,50))
+boxplot(airlinedata$ARR_DELAY ~ airlinedata$UNIQUE_CARRIER, ylim = c(-20,50))
 ```
 
 ## More Complex Analytical Tasks
 
 ```{r highlight = T}
-cor.test(as.numeric(airlinedata$UniqueCarrier), airlinedata$ArrDelay)
+cor.test(as.numeric(airlinedata$UNIQUE_CARRIER), airlinedata$ARR_DELAY)
 ```
 
 ## More Complex Analytical Tasks
 ```{r highlight = T}
 t.test(
-    airlinedata %>% filter(Origin == 'ORD') %>% extract2('ArrDelay')
-  , airlinedata %>% filter(Origin == 'CLT') %>% extract2('ArrDelay')
+    airlinedata %>% filter(ORIGIN == 'ORD') %>% extract2('ARR_DELAY')
+  , airlinedata %>% filter(ORIGIN == 'CLT') %>% extract2('ARR_DELAY')
 )
 ```
 
@@ -141,7 +142,7 @@ t.test(
 ## Creating a Report for Others
 
 1. Build with R Markdown 
-  - integrate Markdown + R into generated html/pdf.
+    - integrate Markdown + R into generated html/pdf.
 2. Use QV for dashboards, etc.
 
 
@@ -149,23 +150,23 @@ t.test(
 ## Building Statistical Models
 
 ```{r echo=T, message=FALSE, warning=FALSE, results = 'hide'}
-lm_model <- lm(ArrDelayMinutes ~ DayOfWeek + AirTime, data = mydata)
+lm_model <- lm(ARR_DELAY ~ DAY_OF_WEEK + DEP_DELAY, data = mydata)
 
 rf_model <- randomForest(
-                 x = mydata %>% select(DayOfWeek, UniqueCarrier)
-               , y = mydata$ArrDelayMinutes
+                 x = mydata %>% select(DAY_OF_WEEK , UNIQUE_CARRIER)
+               , y = mydata$ARR_DELAY 
              )
 
 caret_model <- train(
-                x = mydata %>% select(DayOfWeek, UniqueCarrier)
-              , y = mydata$ArrDelayMinutes  
+                x = mydata %>% select(DAY_OF_WEEK , UNIQUE_CARRIER)
+              , y = mydata$ARR_DELAY 
               , trControl = trainControl(number = 3)
               )
 ```
 
 ## Linear Model
 ```{r}
-summary(lm_model)
+ tidy(lm_model)
 ```
 
 ## Random Forest Model
@@ -182,10 +183,10 @@ caret_model
 
 ```{r}
 newdata  <- data_frame(
-    DayOfWeek      = c(1L,2L,3L,4L,5L)
-  , UniqueCarrier  = factor(
+    DAY_OF_WEEK      = c(1L,2L,3L,4L,5L)
+  , UNIQUE_CARRIER  = factor(
                         c("AA", "AS", "EV", "WN", "OO")
-                      , levels = levels(mydata$UniqueCarrier)
+                      , levels = levels(mydata$UNIQUE_CARRIER)
                     )
 )
 predictions  <- predict(caret_model, newdata)
@@ -240,22 +241,22 @@ foo_foo %>%
 
 airlinedata %>% 
   mutate(
-      DepTime = as.numeric(DepTime)
+      DepTime = as.numeric(str_remove(DEP_TIME_BLK, "-.*"))
     , DepMorning = ifelse(DepTime < 12, "morning", "evening")
   ) %>% 
-  filter(Origin == 'ORD' | Origin == 'MIA') %>% 
-  select(Origin, DayOfWeek,FlightDate,ArrDelay, DepDelay, AirlineID) %>% 
-  arrange(DepDelay)
+  filter(ORIGIN == 'ORD' | ORIGIN == 'MIA') %>% 
+  select(ORIGIN, DAY_OF_WEEK, FL_DATE, ARR_DELAY, DEP_DELAY, UNIQUE_CARRIER) %>% 
+  arrange(DEP_DELAY)
 ```
 
 ## Pivot Table Verbs
 ```{r}
   airlinedata %>% 
-  group_by(AirlineID) %>% 
+  group_by(UNIQUE_CARRIER) %>% 
   summarize(
       n_flights    = n()
-    , mean_delay   = mean(ArrDelay, na.rm = T)
-    , median_delay = median(ArrDelay, na.rm = T)
+    , mean_delay   = mean(ARR_DELAY, na.rm = T)
+    , median_delay = median(ARR_DELAY, na.rm = T)
   )
 ```
 
@@ -263,16 +264,16 @@ airlinedata %>%
 ## Fancy Plotting - Dates vs. Arrival Delay
 
 ```{r message =F, warning = F, error = F }
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
-  geom_point(aes(color = Carrier)) + 
+ggplot(mydata, aes(x = FL_DATE, y = ARR_DELAY)) + 
+  geom_point(aes(color = UNIQUE_CARRIER)) + 
   geom_smooth() 
 ```
 
-## Fancy Plotting-  Dates vs. Arrival Delay
+## Fancy Plotting - Dates vs. Arrival Delay
 
 ```{r message =F, warning = F, error = F }
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
-  geom_jitter(alpha = .5, aes(color = Carrier)) + 
+ggplot(mydata, aes(x = FL_DATE, y =  ARR_DELAY)) + 
+  geom_jitter(alpha = .5, aes(color = UNIQUE_CARRIER)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100))
 ```
@@ -281,11 +282,11 @@ ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) +
 ## Fancy Plotting-  Dates vs. Arrival Delay
 
 ```{r message =F, warning = F, error = F }
-ggplot(mydata, aes(x = FlightDate, y = ArrDelayMinutes)) + 
-  geom_jitter(alpha = .5, aes(color = Carrier)) + 
+ggplot(mydata, aes(x = FL_DATE, y =   ARR_DELAY)) + 
+  geom_jitter(alpha = .5, aes(color = UNIQUE_CARRIER)) + 
   geom_smooth() + 
   coord_cartesian(ylim = c(0,100)) + 
-  facet_wrap(~Carrier)
+  facet_wrap(~UNIQUE_CARRIER)
 ```
 
 
