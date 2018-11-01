@@ -1,8 +1,8 @@
 ---
 title: "Using R for Analysis"
 output:
-  ioslides_presentation: default
   slidy_presentation: default
+  ioslides_presentation: default
 ---
 
 ## Jake Tolbert
@@ -76,6 +76,12 @@ my_mailing  <- bind_rows( td_around_decatur, td_donors) %>%
   - load data
   - set up list boxes and charts
   - click around
+- Use Excel
+  - click around
+  - run some pivot tables
+- R requirees a mental model
+  - use summary stats, environment pane
+  - `View(airlinedata)`
 
 
 ## Statisical Analysis
@@ -98,6 +104,12 @@ airlinedata  <- read_csv('data/airline_data_mco_2017.csv') %>%
       FL_DATE = ymd(FL_DATE) 
     , ORIGIN  = factor(ORIGIN)
     , UNIQUE_CARRIER = factor(UNIQUE_CARRIER)
+    , DepTime    = ymd_hm(
+                     paste(
+                          FL_DATE
+                        , sub("-.*", "", DEP_TIME_BLK )
+                     ) 
+                   )
   )
 
 
@@ -126,14 +138,14 @@ boxplot(airlinedata$ARR_DELAY ~ airlinedata$UNIQUE_CARRIER, ylim = c(-20,50))
 ## More Complex Analytical Tasks
 
 ```{r highlight = T}
-cor.test(as.numeric(airlinedata$UNIQUE_CARRIER), airlinedata$ARR_DELAY)
+cor.test(hour(airlinedata$DepTime), airlinedata$ARR_DELAY)
 ```
 
 ## More Complex Analytical Tasks
 ```{r highlight = T}
 t.test(
-    airlinedata %>% filter(ORIGIN == 'ORD') %>% extract2('ARR_DELAY')
-  , airlinedata %>% filter(ORIGIN == 'CLT') %>% extract2('ARR_DELAY')
+    airlinedata %>% filter(ORIGIN == 'ORD') %>% pluck('ARR_DELAY')
+  , airlinedata %>% filter(ORIGIN == 'CLT') %>% pluck('ARR_DELAY')
 )
 ```
 
@@ -143,7 +155,8 @@ t.test(
 
 1. Build with R Markdown 
     - integrate Markdown + R into generated html/pdf.
-2. Use QV for dashboards, etc.
+2. Use QV for dashboards, etc. 
+3. Dump to Excel and format
 
 
 
@@ -171,15 +184,15 @@ caret_model <- train(
 
 ## Random Forest Model
 ```{r}
-rf_model
+print(rf_model)
 ```
 
 ## Caret Model
 ```{r}
-caret_model
+print(caret_model)
 ```
 
-## Predict New Cases
+## Build New Data to Predict New Cases
 
 ```{r}
 newdata  <- data_frame(
@@ -189,6 +202,12 @@ newdata  <- data_frame(
                       , levels = levels(mydata$UNIQUE_CARRIER)
                     )
 )
+
+newdata
+```
+
+## Predict New Cases 
+```{r}
 predictions  <- predict(caret_model, newdata)
 newdata$predictedDelay  <- predictions
 newdata
@@ -199,9 +218,29 @@ newdata
 - a series of packages creating a new grammar for R
 ![](tidyverse.png)
 
+
+## Load Packages in Every Script
+My scripts almost always begin like this:
+
+```{r echo = T, eval = FALSE, highlight = TRUE}
+# libraries -------------------------------------------
+
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(readxl)
+
+# actual real work ------------------------------------------------
+
+# start doing something here....
+
+```
+
+
 ## Base R - Use Nested Functions
+
 ```{r echo=TRUE, eval = FALSE, highlight = TRUE}
-bop(
+fullstory  <- bop(
   scoop(
     hop(foo_foo, through = forest),
     up = field_mice
@@ -209,39 +248,48 @@ bop(
   on = head
 )
 ```
-
+- really hard to read
+- nobody thinks this way (so it's hard to write this way)
 
 ## Lots of Little Steps, Saving New Objects
 ```{r echo=TRUE, eval = FALSE, highlight = TRUE}
 foo_foo_1 <- hop(  foo_foo  , through = forest)
 foo_foo_2 <- scoop(foo_foo_1, up = field_mice)
-foo_foo_3 <- bop(  foo_foo_2, on = head)
+fullstory <- bop(  foo_foo_2, on = head)
 ```
+
+- not terrible
+- but terribly messy
 
 
 ## Lots of Little Steps, Overwriting Each Time
 ```{r echo=TRUE, eval = FALSE, highlight = TRUE}
-foo_foo <- hop(  foo_foo, through = forest)
-foo_foo <- scoop(foo_foo, up = field_mice)
-foo_foo <- bop(  foo_foo, on = head)
+foo_foo   <- hop(  foo_foo, through = forest)
+foo_foo   <- scoop(foo_foo, up = field_mice)
+fullstory <- bop(  foo_foo, on = head)
 ```
 
+- even better
+- but debugging `scoop()` is a royal pain 
 
 ## Use the Pipe
 ```{r echo=TRUE, eval = FALSE, highlight = TRUE}
-foo_foo %>%
+fullstory  <- foo_foo %>%
   hop(through = forest) %>%
   scoop(up = field_mouse) %>%
   bop(on = head)
 ```
 
+- reads the way it happens
+- not messy
+- simple to debug 
 
 ## Dplyr's Verbs
 ```{r}
 
 airlinedata %>% 
   mutate(
-      DepTime = as.numeric(str_remove(DEP_TIME_BLK, "-.*"))
+      DepTime    = as.numeric(str_remove(DEP_TIME_BLK, "-.*"))
     , DepMorning = ifelse(DepTime < 12, "morning", "evening")
   ) %>% 
   filter(ORIGIN == 'ORD' | ORIGIN == 'MIA') %>% 
@@ -255,7 +303,7 @@ airlinedata %>%
   group_by(UNIQUE_CARRIER) %>% 
   summarize(
       n_flights    = n()
-    , mean_delay   = mean(ARR_DELAY, na.rm = T)
+    , mean_delay   = mean(ARR_DELAY  , na.rm = T)
     , median_delay = median(ARR_DELAY, na.rm = T)
   )
 ```
@@ -290,7 +338,7 @@ ggplot(mydata, aes(x = FL_DATE, y =   ARR_DELAY)) +
 ```
 
 
-### Lots More Code Examples on Github
+## Lots More Code Examples on Github
 
 - https://github.com/crazybilly/airline-is470-class
   - clone the repo to your desktop and open airline-project.Rproj
